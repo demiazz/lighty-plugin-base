@@ -32,6 +32,25 @@ function pluginInitializer() {
           component.node.addEventListener(event, handler.bind(component));
         }
       }
+
+      if (endsWith(property, 'on self only')) {
+        const events = property.slice(0, property.length - 13).split(', ');
+        const handler = component[property];
+
+        delete component[property];
+
+        for (let j = 0; j < events.length; j += 1) {
+          const event = events[j];
+
+          component.node.addEventListener(event, (e) => {
+            if (e.currentTarget !== e.target) {
+              return;
+            }
+
+            handler.call(component, e);
+          });
+        }
+      }
     }
   };
 }
