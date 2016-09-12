@@ -51,6 +51,32 @@ function pluginInitializer() {
           });
         }
       }
+
+      if (endsWith(property, 'on body')) {
+        const events = property.slice(0, property.length - 8).split(', ');
+        const handler = component[property];
+
+        delete component[property];
+
+        for (let j = 0; j < events.length; j += 1) {
+          const event = events[j];
+
+          document.body.addEventListener(event, handler.bind(component));
+        }
+      }
+
+      if (endsWith(property, 'on window')) {
+        const events = property.slice(0, property.length - 10).split(', ');
+        const handler = component[property];
+
+        delete component[property];
+
+        for (let j = 0; j < events.length; j += 1) {
+          const event = events[j];
+
+          window.addEventListener(event, handler.bind(component));
+        }
+      }
     }
   };
 }
