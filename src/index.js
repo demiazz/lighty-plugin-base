@@ -2,7 +2,9 @@ import { plugin } from 'lighty';
 
 
 function pluginInitializer() {
-  return function transform() { };
+  return function transform(component, node) {
+    component.node = node;
+  };
 }
 
 
