@@ -13,7 +13,7 @@ describe('lighty-plugin-base', () => {
   afterEach(clear);
 
   describe('node alias', () => {
-    it('adds `this.node` alias for node', done => {
+    it('adds `this.node` alias for node', (done) => {
       fixture('<div class="bind"></div>');
 
       application.component('.bind', {
