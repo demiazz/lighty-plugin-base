@@ -109,7 +109,7 @@ describe('lighty-plugin-base', () => {
         <div class="self-only-events-on-children">
           <div class="inside"></div>
         </div>
-       `);
+      `);
 
       const eventSpy = sinon.spy();
 
