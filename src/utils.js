@@ -1,11 +1,18 @@
-function endsWithNative(string, substring) {
-  return string.endsWith(substring);
+function getMatchesFn() {
+  const e = document.documentElement;
+
+  return (
+    e.matches ||
+    e.matchesSelector ||
+    e.msMatchesSelector ||
+    e.mozMatchesSelector ||
+    e.webkitMatchesSelector ||
+    e.oMatchesSelector
+  );
 }
 
-function endsWithPolyfill(string, substring) {
-  return string.substr(-substring.length) === substring;
-}
+const matchesFn = getMatchesFn();
 
-export const endsWith = String.prototype.endsWith
-  ? endsWithNative
-  : endsWithPolyfill;
+export function matches(element, selector) {
+  return matchesFn.call(element, selector);
+}

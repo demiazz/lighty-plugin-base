@@ -1,6 +1,6 @@
 import { plugin } from 'lighty';
 
-import { endsWith } from './utils';
+import { matches } from './utils';
 
 
 let loadedEvent;
@@ -8,6 +8,14 @@ let loadedEvent;
 window.addEventListener('load', function handleWindowLoad(event) {
   loadedEvent = event;
 });
+
+
+function parseEventsDescriptor(descriptor) {
+  const [eventsNames, selector] = descriptor.split(' on ');
+  const events = eventsNames.split(', ');
+
+  return { events, selector };
+}
 
 
 function pluginInitializer() {
@@ -27,72 +35,81 @@ function pluginInitializer() {
     for (let i = 0; i < properties.length; i += 1) {
       const property = properties[i];
 
-      if (endsWith(property, 'on self')) {
-        const events = property.slice(0, property.length - 8).split(', ');
-        const handler = component[property];
+      const { events: eventsNames, selector } = parseEventsDescriptor(property);
 
-        delete component[property];
-
-        for (let j = 0; j < events.length; j += 1) {
-          const event = events[j];
-
-          component.node.addEventListener(event, handler.bind(component));
-        }
+      if (!selector) {
+        continue; // eslint-disable-line
       }
 
-      if (endsWith(property, 'on self only')) {
-        const events = property.slice(0, property.length - 13).split(', ');
-        const handler = component[property];
+      const handler = component[property];
 
-        delete component[property];
+      delete component[property];
 
-        for (let j = 0; j < events.length; j += 1) {
-          const event = events[j];
+      switch (selector) {
+        case 'self':
+          for (let j = 0; j < eventsNames.length; j += 1) {
+            const eventName = eventsNames[j];
 
-          component.node.addEventListener(event, (e) => {
-            if (e.currentTarget !== e.target) {
-              return;
+            component.node.addEventListener(eventName, handler.bind(component));
+          }
+
+          break;
+        case 'self only':
+          for (let j = 0; j < eventsNames.length; j += 1) {
+            const eventName = eventsNames[j];
+
+            component.node.addEventListener(eventName, (event) => {
+              if (event.currentTarget !== event.target) {
+                return;
+              }
+
+              handler.call(component, event);
+            });
+          }
+
+          break;
+        case 'body':
+          for (let j = 0; j < eventsNames.length; j += 1) {
+            const eventName = eventsNames[j];
+
+            document.body.addEventListener(eventName, handler.bind(component));
+          }
+
+          break;
+        case 'window':
+          if (eventsNames.length === 1 && eventsNames[0] === 'load') {
+            if (loadedEvent) {
+              setTimeout(handler.bind(component, loadedEvent), 1);
+            } else {
+              window.addEventListener('load', handler.bind(component));
             }
+          } else {
+            for (let j = 0; j < eventsNames.length; j += 1) {
+              const eventName = eventsNames[j];
 
-            handler.call(component, e);
-          });
-        }
-      }
+              window.addEventListener(eventName, handler.bind(component));
+            }
+          }
 
-      if (endsWith(property, 'on body')) {
-        const events = property.slice(0, property.length - 8).split(', ');
-        const handler = component[property];
+          break;
+        default:
+          for (let j = 0; j < eventsNames.length; j += 1) {
+            const eventName = eventsNames[j];
 
-        delete component[property];
+            component.node.addEventListener(eventName, (event) => {
+              let currentNode = event.target;
 
-        for (let j = 0; j < events.length; j += 1) {
-          const event = events[j];
+              while (currentNode !== component.node) {
+                if (matches(currentNode, selector)) {
+                  handler.call(component, event);
 
-          document.body.addEventListener(event, handler.bind(component));
-        }
-      }
+                  return;
+                }
 
-      if (property === 'load on window') {
-        const handler = component[property];
-
-        delete component[property];
-
-        if (loadedEvent) {
-          setTimeout(handler.bind(component, loadedEvent), 1);
-        } else {
-          window.addEventListener('load', handler.bind(component));
-        }
-      } else if (endsWith(property, 'on window')) {
-        const events = property.slice(0, property.length - 10).split(', ');
-        const handler = component[property];
-
-        delete component[property];
-
-        for (let j = 0; j < events.length; j += 1) {
-          const event = events[j];
-
-          window.addEventListener(event, handler.bind(component));
-        }
+                currentNode = currentNode.parentNode;
+              }
+            });
+          }
       }
     }
   };
