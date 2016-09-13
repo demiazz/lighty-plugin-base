@@ -10,142 +10,95 @@ describe('lighty-plugin-base', () => {
     application.use(plugin).run();
   });
 
-  afterEach(clear);
-
   describe('self events', () => {
+    let eventSpy;
+    let clickEvent;
+    let customEvent;
+    let node;
+
+    beforeEach(() => {
+      fixture(`
+        <div class="self-events">
+          <div class="children"></div>
+        </div>
+      `);
+
+      eventSpy = sinon.spy();
+
+      clickEvent = document.createEvent('HTMLEvents');
+      clickEvent.initEvent('click', true, true);
+
+      customEvent = document.createEvent('CustomEvent');
+      customEvent.initEvent('custom-event', true, true);
+
+      node = document.querySelector('.self-events');
+    });
+
+    afterEach(clear);
+
     it('adds support for `<event> on self` pattern', () => {
-      fixture('<div class="self-events"></div>');
-
-      const eventSpy = sinon.spy();
-
       application.component('.self-events', {
         'click on self': eventSpy,
         'custom-event on self': eventSpy,
       }).vitalize();
 
-      const node = document.querySelector('.self-events');
-
       expect(eventSpy.callCount).toEqual(0);
 
-      const clickEvent = document.createEvent('HTMLEvents');
-
-      clickEvent.initEvent('click', true, true);
-
       node.dispatchEvent(clickEvent);
-
       expect(eventSpy.callCount).toEqual(1);
 
-      const customEvent = new Event('CustomEvent');
-
-      customEvent.initEvent('custom-event', true, true);
-
       node.dispatchEvent(customEvent);
-
       expect(eventSpy.callCount).toEqual(2);
     });
 
     it('adds support for `<event>[, <event>] on self` pattern', () => {
-      fixture('<div class="multiple-self-events"></div>');
-
-      const eventSpy = sinon.spy();
-
-      application.component('.multiple-self-events', {
+      application.component('.self-events', {
         'click, custom-event on self': eventSpy,
       }).vitalize();
 
-      const node = document.querySelector('.multiple-self-events');
-
       expect(eventSpy.callCount).toEqual(0);
 
-      const clickEvent = document.createEvent('HTMLEvents');
-
-      clickEvent.initEvent('click', true, true);
-
       node.dispatchEvent(clickEvent);
-
       expect(eventSpy.callCount).toEqual(1);
 
-      const customEvent = new Event('CustomEvent');
-
-      customEvent.initEvent('custom-event', true, true);
-
       node.dispatchEvent(customEvent);
-
       expect(eventSpy.callCount).toEqual(2);
     });
 
     it("calls handler when a node is event's target", () => {
-      fixture('<div class="self-events-on-component"></div>');
-
-      const eventSpy = sinon.spy();
-
-      application.component('.self-events-on-component', {
+      application.component('.self-events', {
         'click, custom-event on self': eventSpy,
       }).vitalize();
 
-      const node = document.querySelector('.self-events-on-component');
-
       expect(eventSpy.callCount).toEqual(0);
 
-      const clickEvent = document.createEvent('HTMLEvents');
-
-      clickEvent.initEvent('click', true, true);
-
       node.dispatchEvent(clickEvent);
-
       expect(eventSpy.callCount).toEqual(1);
 
-      const customEvent = new Event('CustomEvent');
-
-      customEvent.initEvent('custom-event', true, true);
-
       node.dispatchEvent(customEvent);
-
       expect(eventSpy.callCount).toEqual(2);
     });
 
     it("calls handler when a node's children is event's target", () => {
-      fixture(`
-        <div class="self-events-on-children">
-          <div class="inside"></div>
-        </div>
-      `);
-
-      const eventSpy = sinon.spy();
-
-      application.component('.self-events-on-children', {
+      application.component('.self-events', {
         'click, custom-event on self': eventSpy,
       }).vitalize();
 
-      const node = document.querySelector('.self-events-on-children .inside');
+      node = node.querySelector('.children');
 
       expect(eventSpy.callCount).toEqual(0);
 
-      const clickEvent = document.createEvent('HTMLEvents');
-
-      clickEvent.initEvent('click', true, true);
-
       node.dispatchEvent(clickEvent);
-
       expect(eventSpy.callCount).toEqual(1);
 
-      const customEvent = new Event('CustomEvent');
-
-      customEvent.initEvent('custom-event', true, true);
-
       node.dispatchEvent(customEvent);
-
       expect(eventSpy.callCount).toEqual(2);
     });
 
     it('calls handler on a component instance', () => {
-      fixture('<div class="self-events-context"></div>');
-
-      const eventSpy = sinon.spy();
-
       let component;
 
-      application.component('.self-events-context', {
+      application.component('.self-events', {
         init() {
           component = this;
         },
@@ -153,58 +106,30 @@ describe('lighty-plugin-base', () => {
         'click, custom-event on self': eventSpy,
       }).vitalize();
 
-      const node = document.querySelector('.self-events-context');
-
       expect(eventSpy.callCount).toEqual(0);
       expect(component).toBeTruthy();
 
-      const clickEvent = document.createEvent('HTMLEvents');
-
-      clickEvent.initEvent('click', true, true);
-
       node.dispatchEvent(clickEvent);
-
       expect(eventSpy.callCount).toEqual(1);
       expect(eventSpy.getCall(0).calledOn(component)).toBe(true);
 
-      const customEvent = new Event('CustomEvent');
-
-      customEvent.initEvent('custom-event', true, true);
-
       node.dispatchEvent(customEvent);
-
       expect(eventSpy.callCount).toEqual(2);
       expect(eventSpy.getCall(1).calledOn(component)).toBe(true);
     });
 
     it('passes an event to a handler', () => {
-      fixture('<div class="self-events-event"></div>');
-
-      const eventSpy = sinon.spy();
-
-      application.component('.self-events-event', {
+      application.component('.self-events', {
         'click, custom-event on self': eventSpy,
       }).vitalize();
 
-      const node = document.querySelector('.self-events-event');
-
       expect(eventSpy.callCount).toEqual(0);
 
-      const clickEvent = document.createEvent('HTMLEvents');
-
-      clickEvent.initEvent('click', true, true);
-
       node.dispatchEvent(clickEvent);
-
       expect(eventSpy.callCount).toEqual(1);
       expect(eventSpy.getCall(0).args[0] instanceof Event).toBe(true);
 
-      const customEvent = new Event('CustomEvent');
-
-      customEvent.initEvent('custom-event', true, true);
-
       node.dispatchEvent(customEvent);
-
       expect(eventSpy.callCount).toEqual(2);
       expect(eventSpy.getCall(1).args[0] instanceof Event).toBe(true);
     });
