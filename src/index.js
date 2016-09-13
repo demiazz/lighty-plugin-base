@@ -3,6 +3,13 @@ import { plugin } from 'lighty';
 import { endsWith } from './utils';
 
 
+let loadedEvent;
+
+window.addEventListener('load', function handleWindowLoad(event) {
+  loadedEvent = event;
+});
+
+
 function pluginInitializer() {
   return function transform(component, node) {
     component.node = node;
@@ -65,7 +72,17 @@ function pluginInitializer() {
         }
       }
 
-      if (endsWith(property, 'on window')) {
+      if (property === 'load on window') {
+        const handler = component[property];
+
+        delete component[property];
+
+        if (loadedEvent) {
+          setTimeout(handler.bind(component, loadedEvent), 1);
+        } else {
+          window.addEventListener('load', handler.bind(component));
+        }
+      } else if (endsWith(property, 'on window')) {
         const events = property.slice(0, property.length - 10).split(', ');
         const handler = component[property];
 
