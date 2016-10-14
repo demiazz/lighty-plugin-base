@@ -1,25 +1,11 @@
-# lighty-plugin-legacy
+# lighty-plugin-base
 
-<p align="center">
-  <a href="https://travis-ci.org/demiazz/lighty-plugin-legacy">
-    <img src="https://img.shields.io/travis/demiazz/lighty-plugin-legacy.svg?style=flat-square&maxAge=20000"
-         alt="build status">
-  </a>
-  <a href="https://www.npmjs.com/package/lighty-plugin-legacy">
-    <img src="https://img.shields.io/npm/v/lighty-plugin-legacy.svg?style=flat-square&maxAge=20000"
-         alt="npm version">
-  </a>
-  <a href="https://github.com/demiazz/lighty-plugin-legacy/blob/master/LICENSE">
-    <img src="https://img.shields.io/npm/l/lighty-plugin-legacy.svg?style=flat-square&maxAge=20000"
-         alt="license">
-  </a>
-  <a href="https://coveralls.io/github/demiazz/lighty-plugin-legacy">
-    <img src="https://img.shields.io/coveralls/demiazz/lighty-plugin-legacy.svg?style=flat-square&maxAge=20000"
-         alt="coverage">
-  </a>
-</p>
+[![version](https://img.shields.io/npm/v/lighty-plugin-base.svg?style=flat-square)](https://www.npmjs.com/package/lighty-plugin-base)
+[![license](https://img.shields.io/npm/l/lighty-plugin-base.svg?style=flat-square)](https://github.com/demiazz/lighty-plugin-base/blob/master/LICENSE)
+[![build status](https://img.shields.io/travis/demiazz/lighty-plugin-base.svg?style=flat-square)](https://travis-ci.org/demiazz/lighty-plugin-base)
+[![coverage](https://img.shields.io/coveralls/demiazz/lighty-plugin-base.svg?style=flat-square)](https://coveralls.io/github/demiazz/lighty-plugin-base)
 
-Plugin for compatibility with [Evil Blocks] by [@ai].
+Plugin for base event handlers with native JS DOM API support.
 
 <a href="https://evilmartians.com/?utm_source=evil-blocks">
   <img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="236" height="54">
@@ -30,4 +16,4 @@ Plugin for compatibility with [Evil Blocks] by [@ai].
 
 ## License
 
-Released under the [MIT license](https://github.com/demiazz/lighty-plugin-legacy/blob/master/LICENSE).
+Released under the [MIT license](https://github.com/demiazz/lighty-plugin-base/blob/master/LICENSE).
