@@ -1,6 +1,6 @@
 import application from 'lighty';
 
-import { fixture, clear } from './helpers';
+import { fixture, clear, matchers } from './helpers';
 
 import plugin from '../src/index';
 
@@ -10,13 +10,17 @@ describe('lighty-plugin-base', () => {
     application.use(plugin).run();
   });
 
+  beforeEach(() => {
+    window.jasmine.addMatchers(matchers);
+  });
+
   describe('load events', () => {
     let eventSpy;
 
     beforeEach(() => {
       fixture('<div class="load-events"></div>');
 
-      eventSpy = sinon.spy();
+      eventSpy = jasmine.createSpy('event');
     });
 
     afterEach(clear);
@@ -26,10 +30,10 @@ describe('lighty-plugin-base', () => {
         'load on window': eventSpy,
       });
 
-      expect(eventSpy.callCount).toEqual(0);
+      expect(eventSpy).not.toHaveBeenCalled();
 
       setTimeout(() => {
-        expect(eventSpy.callCount).toEqual(1);
+        expect(eventSpy).toHaveBeenCalledTimes(1);
 
         done();
       }, 10);
@@ -47,7 +51,7 @@ describe('lighty-plugin-base', () => {
       });
 
       setTimeout(() => {
-        expect(eventSpy.calledOn(component)).toBe(true);
+        expect(eventSpy).toHaveBeenCalledOn(component);
 
         done();
       });
@@ -59,7 +63,7 @@ describe('lighty-plugin-base', () => {
       });
 
       setTimeout(() => {
-        expect(eventSpy.getCall(0).args[0] instanceof Event).toBe(true);
+        expect(eventSpy.calls.argsFor(0)[0]).toBeInstanceOf(Event);
 
         done();
       }, 10);

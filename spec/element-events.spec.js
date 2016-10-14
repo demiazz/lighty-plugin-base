@@ -1,6 +1,6 @@
 import application from 'lighty';
 
-import { fixture, clear } from './helpers';
+import { fixture, clear, matchers } from './helpers';
 
 import plugin from '../src/index';
 
@@ -8,6 +8,10 @@ import plugin from '../src/index';
 describe('lighty-plugin-base', () => {
   beforeAll(() => {
     application.use(plugin).run();
+  });
+
+  beforeEach(() => {
+    window.jasmine.addMatchers(matchers);
   });
 
   describe('elements events', () => {
@@ -29,7 +33,7 @@ describe('lighty-plugin-base', () => {
         </div>
       `);
 
-      eventSpy = sinon.spy();
+      eventSpy = jasmine.createSpy('event');
 
       clickEvent = document.createEvent('HTMLEvents');
       clickEvent.initEvent('click', true, true);
@@ -51,13 +55,13 @@ describe('lighty-plugin-base', () => {
         'custom-event on .children': eventSpy,
       }).vitalize();
 
-      expect(eventSpy.callCount).toEqual(0);
+      expect(eventSpy).not.toHaveBeenCalled();
 
       children.dispatchEvent(clickEvent);
-      expect(eventSpy.callCount).toEqual(1);
+      expect(eventSpy).toHaveBeenCalledTimes(1);
 
       children.dispatchEvent(customEvent);
-      expect(eventSpy.callCount).toEqual(2);
+      expect(eventSpy).toHaveBeenCalledTimes(2);
     });
 
     it('adds support for `<event>[, <event>] on <selector>`', () => {
@@ -65,13 +69,13 @@ describe('lighty-plugin-base', () => {
         'click, custom-event on .children': eventSpy,
       }).vitalize();
 
-      expect(eventSpy.callCount).toEqual(0);
+      expect(eventSpy).not.toHaveBeenCalled();
 
       children.dispatchEvent(clickEvent);
-      expect(eventSpy.callCount).toEqual(1);
+      expect(eventSpy).toHaveBeenCalledTimes(1);
 
       children.dispatchEvent(customEvent);
-      expect(eventSpy.callCount).toEqual(2);
+      expect(eventSpy).toHaveBeenCalledTimes(2);
     });
 
     it("calls handler when a children matched by selector is event's target", () => {
@@ -79,13 +83,13 @@ describe('lighty-plugin-base', () => {
         'click, custom-event on .children': eventSpy,
       }).vitalize();
 
-      expect(eventSpy.callCount).toEqual(0);
+      expect(eventSpy).not.toHaveBeenCalled();
 
       children.dispatchEvent(clickEvent);
-      expect(eventSpy.callCount).toEqual(1);
+      expect(eventSpy).toHaveBeenCalledTimes(1);
 
       children.dispatchEvent(customEvent);
-      expect(eventSpy.callCount).toEqual(2);
+      expect(eventSpy).toHaveBeenCalledTimes(2);
     });
 
     it("calls handler when a child of children matched by the selector is event's target", () => {
@@ -93,13 +97,13 @@ describe('lighty-plugin-base', () => {
         'click, custom-event on .children': eventSpy,
       }).vitalize();
 
-      expect(eventSpy.callCount).toEqual(0);
+      expect(eventSpy).not.toHaveBeenCalled();
 
       subchildren.dispatchEvent(clickEvent);
-      expect(eventSpy.callCount).toEqual(1);
+      expect(eventSpy).toHaveBeenCalledTimes(1);
 
       subchildren.dispatchEvent(customEvent);
-      expect(eventSpy.callCount).toEqual(2);
+      expect(eventSpy).toHaveBeenCalledTimes(2);
     });
 
     it("doesn't call handler when children which don't match by the selector is event's target", () => {
@@ -107,13 +111,13 @@ describe('lighty-plugin-base', () => {
         'click, custom-event on .children': eventSpy,
       }).vitalize();
 
-      expect(eventSpy.callCount).toEqual(0);
+      expect(eventSpy).not.toHaveBeenCalled();
 
       otherChildren.dispatchEvent(clickEvent);
-      expect(eventSpy.callCount).toEqual(0);
+      expect(eventSpy).not.toHaveBeenCalled();
 
       otherChildren.dispatchEvent(customEvent);
-      expect(eventSpy.callCount).toEqual(0);
+      expect(eventSpy).not.toHaveBeenCalled();
     });
 
     it('calls handler on a component instance', () => {
@@ -127,16 +131,16 @@ describe('lighty-plugin-base', () => {
         'click, custom-event on .children': eventSpy,
       }).vitalize();
 
-      expect(eventSpy.callCount).toEqual(0);
+      expect(eventSpy).not.toHaveBeenCalled();
       expect(component).toBeTruthy();
 
       children.dispatchEvent(clickEvent);
-      expect(eventSpy.callCount).toEqual(1);
-      expect(eventSpy.getCall(0).calledOn(component)).toBe(true);
+      expect(eventSpy).toHaveBeenCalledTimes(1);
 
       children.dispatchEvent(customEvent);
-      expect(eventSpy.callCount).toEqual(2);
-      expect(eventSpy.getCall(1).calledOn(component)).toBe(true);
+      expect(eventSpy).toHaveBeenCalledTimes(2);
+
+      expect(eventSpy).toHaveBeenCalledOn(component);
     });
 
     it('passes an event to a handler', () => {
@@ -144,15 +148,15 @@ describe('lighty-plugin-base', () => {
         'click, custom-event on body': eventSpy,
       }).vitalize();
 
-      expect(eventSpy.callCount).toEqual(0);
+      expect(eventSpy).not.toHaveBeenCalled();
 
       children.dispatchEvent(clickEvent);
-      expect(eventSpy.callCount).toEqual(1);
-      expect(eventSpy.getCall(0).args[0] instanceof Event).toBe(true);
+      expect(eventSpy).toHaveBeenCalledTimes(1);
+      expect(eventSpy.calls.argsFor(0)[0]).toBeInstanceOf(Event);
 
       children.dispatchEvent(customEvent);
-      expect(eventSpy.callCount).toEqual(2);
-      expect(eventSpy.getCall(1).args[0] instanceof Event).toBe(true);
+      expect(eventSpy).toHaveBeenCalledTimes(2);
+      expect(eventSpy.calls.argsFor(1)[0]).toBeInstanceOf(Event);
     });
   });
 });
