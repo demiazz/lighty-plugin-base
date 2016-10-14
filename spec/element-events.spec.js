@@ -1,6 +1,6 @@
 import application from 'lighty';
 
-import { fixture, clear } from './fixtures';
+import { fixture, clear } from './helpers';
 
 import plugin from '../src/index';
 
