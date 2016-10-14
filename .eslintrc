@@ -13,6 +13,7 @@
     }]
   },
   "globals": {
+    "jasmine": false,
     "describe": false,
     "context": false,
     "beforeAll": false,
@@ -20,7 +21,6 @@
     "beforeEach": false,
     "afterEach": false,
     "it": false,
-    "expect": false,
-    "sinon": false
+    "expect": false
   }
 }

@@ -1,6 +1,14 @@
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+
 import buble from 'rollup-plugin-buble';
 import uglify from 'rollup-plugin-uglify';
 
+import saveLicense from 'uglify-save-license';
+
+
+const pkgPath = resolve(__dirname, '../package.json');
+const pkg = JSON.parse(readFileSync(pkgPath, { encoding: 'utf8' }));
 
 const config = {
   entry: 'src/index.js',
@@ -19,7 +27,7 @@ if (process.env.TARGET === 'es') {
 }
 
 if (process.env.TARGET === 'umd') {
-  config.moduleName = 'lightyPluginLegacy';
+  config.moduleName = 'lightyPluginBase';
   config.dest = process.env.NODE_ENV === 'production'
     ? 'dist/lighty-plugin-base.umd.min.js'
     : 'dist/lighty-plugin-base.umd.js';
@@ -28,8 +36,29 @@ if (process.env.TARGET === 'umd') {
     jquery: 'jQuery',
   };
 
+  config.banner = [
+    '/*!',
+    ` * ${pkg.name} v${pkg.version}`,
+    ` * ${pkg.homepage}`,
+    ' *',
+    ` * Copyright ${pkg.author.name}`,
+    ` * Released under the ${pkg.license} license`,
+    ' */',
+  ].join('\n');
+
   if (process.env.NODE_ENV === 'production') {
-    config.plugins.push(uglify());
+    config.plugins.push(uglify({
+      output: {
+        comments: saveLicense,
+      },
+    }));
+
+    config.banner = `/*! ${[
+      `${pkg.name} v${pkg.version}`,
+      `${pkg.homepage}`,
+      `(c) ${pkg.author.name}`,
+      `${pkg.license} license`,
+    ].join(' | ')} */`;
   }
 }
 
